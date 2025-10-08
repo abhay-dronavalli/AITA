@@ -1,0 +1,19 @@
+.nav-link {
+  text-decoration: none;
+  color: #61dafb;
+  margin: 0 10px;
+  padding: 5px 10px;
+  border: 1px solid #61dafb;
+  border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #61dafb;
+  color: #000;
+}
+
+.view {
+  padding: 20px;
+  text-align: center;
+}
