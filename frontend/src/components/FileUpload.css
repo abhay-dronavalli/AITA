@@ -1,0 +1,60 @@
+.upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.upload-box {
+  width: 600px;
+  height: 350px;
+  border: 2px dotted #042f52;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  padding: 10px;
+  color:  #042f52;
+}
+
+.upload-image {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+  margin-bottom: 25px;
+ 
+}
+
+.upload-button {
+  background-color: #95cfff;
+  color: black;
+  font-weight: bold;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background-color: #b7dfff;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.file-name {
+  margin-top: 15px;
+  color: #000000;
+  font-size: 2.2vw;
+}
+.success-message {
+  margin-top: 0.1px;
+  color: #0f974c;
+  font-weight: bold;
+  font-size: 2.5vw;
+}
