@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
 import './App.css';
-
+import FileUpload from './components/FileUpload'
 // Placeholder components for views
 function TeacherView() {
   return (
     <div className="view">
       <h2>Teacher Dashboard</h2>
       <p>Course setup, content management, and guardrail configuration will go here.</p>
+      <FileUpload/>
     </div>
   );
 }
