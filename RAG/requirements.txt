@@ -1,0 +1,17 @@
+# Environment
+python-dotenv>=0.21.0
+
+# LLM / index
+llama-index>=0.10.0
+llama-index-llms-gemini>=0.1.0
+llama-index-embeddings-google>=0.1.0
+
+# Popular LLM providers / tokenizers
+openai>=0.27.0
+tiktoken>=0.4.0
+
+# HTTP helpers (if you add web requests later)
+requests>=2.28.0
+
+# Type hints
+typing_extensions>=4.0.0
