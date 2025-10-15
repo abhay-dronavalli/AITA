@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
 import './App.css';
 import FileUpload from './components/FileUpload'
+import StudentChat from './components/StudentChat'
 // Placeholder components for views
 function TeacherView() {
   return (
@@ -17,7 +18,7 @@ function StudentView() {
   return (
     <div className="view">
       <h2>Student Chat Interface</h2>
-      <p>React-based chat system for Q&A will go here.</p>
+      <StudentChat/>
     </div>
   );
 }
