@@ -1,10 +1,32 @@
+/* CSS Variables from Design Tokens */
+:root {
+  /* Colors */
+  --light-gray: rgb(255, 255, 255);
+  --medium-gray: rgb(117, 128, 138);
+  --dark-gray: rgb(45, 59, 69);
+  --error-red: rgb(208, 26, 25);
+  --warning-orange: rgb(252, 94, 19);
+  --success-green: rgb(0, 172, 24);
+  --canvas-blue-hover: rgb(0, 142, 226);
+  --canvas-blue: rgb(3, 116, 181);
+  --background: rgb(245, 245, 245);
+  --white: rgb(255, 255, 255);
+  
+  /* Typography */
+  --font-family: 'Lato', sans-serif;
+  --body-size: 14px;
+  --line-height: 1.5;
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 70vh;
-  max-width: 800px;
+  height: 100vh;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px;
+  width: 100%;
+  font-family: var(--font-family);
 }
 
 .chat-area {
@@ -31,17 +53,23 @@
 
 .message-bubble {
   max-width: 70%;
-  padding: 10px 15px;
-  border-radius: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
   word-wrap: break-word;
+  font-size: var(--body-size);
+  font-weight: 400;
+  line-height: var(--line-height);
 }
 
 .message-bubble.student {
-  background-color: #95cfff;
+  background-color: var(--canvas-blue);
+  color: var(--white);
 }
 
 .message-bubble.ai {
-  background-color: #e9ecef;
+  background-color: var(--background);
+  color: var(--dark-gray);
+  border: 1px solid var(--medium-gray);
 }
 
 .input-area {
@@ -51,17 +79,45 @@
 
 .chat-input {
   flex: 1;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--medium-gray);
+  font-size: var(--body-size);
+  font-family: var(--font-family);
+  font-weight: 400;
+  line-height: var(--line-height);
+  color: var(--dark-gray);
+  transition: border-color 0.2s ease;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--canvas-blue);
+  box-shadow: 0 0 0 2px var(--canvas-blue-hover);
+}
+
+.chat-input::placeholder {
+  color: var(--medium-gray);
 }
 
 .send-button {
-  padding: 10px 20px;
-  background-color: #95cfff;
+  padding: 12px 24px;
+  background-color: var(--canvas-blue);
+  color: var(--white);
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: var(--body-size);
+  font-family: var(--font-family);
+  line-height: var(--line-height);
+  transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: var(--canvas-blue-hover);
+}
+
+.send-button:active {
+  transform: translateY(1px);
 }
