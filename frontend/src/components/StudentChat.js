@@ -46,6 +46,16 @@ function StudentChat() {
     }
   };
 
+  const renderDots = () => {
+    return (
+      <span style={{ color: '#556572' }}>
+        {dotPosition === 0 && '●'}
+        {dotPosition === 1 && '● ●'}
+        {dotPosition === 2 && '● ● ●'}
+      </span>
+    );
+  };
+
   return (
     <div className="chat-container">
       <div className="chat-area">
@@ -62,9 +72,7 @@ function StudentChat() {
         {isTyping && (
           <div className="message-row ai">
             <div className="message-bubble ai">
-              {dotPosition === 0 && '●'}
-              {dotPosition === 1 && '● ●'}
-              {dotPosition === 2 && '● ● ●'}
+              {renderDots()}
             </div>
           </div>
         )}
