@@ -1,19 +1,162 @@
-.nav-link {
-  text-decoration: none;
-  color: #61dafb;
-  margin: 0 10px;
-  padding: 5px 10px;
-  border: 1px solid #61dafb;
-  border-radius: 4px;
+/* Remove all default App styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  background-color: #61dafb;
-  color: #000;
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+/* CSS Variables from Design Tokens */
+:root {
+  /* Colors */
+  --light-gray: rgb(255, 255, 255);
+  --medium-gray: rgb(117, 128, 138);
+  --dark-gray: rgb(45, 59, 69);
+  --error-red: rgb(208, 26, 25);
+  --warning-orange: rgb(252, 94, 19);
+  --success-green: rgb(0, 172, 24);
+  --canvas-blue-hover: rgb(0, 142, 226);
+  --canvas-blue: rgb(3, 116, 181);
+  --background: rgb(245, 245, 245);
+  --white: rgb(255, 255, 255);
+  
+  /* Typography */
+  --font-family: 'Lato', sans-serif;
+  --heading-1-size: 24px;
+  --heading-2-size: 18px;
+  --body-size: 14px;
+  --small-size: 12px;
+  --line-height: 1.5;
 }
 
-.view {
-  padding: 20px;
+body {
+  font-family: var(--font-family);
+  font-size: var(--body-size);
+  font-weight: 400;
+  line-height: var(--line-height);
+  color: var(--dark-gray);
+}
+
+h1 {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--heading-1-size);
+  line-height: var(--line-height);
+}
+
+h2 {
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--heading-2-size);
+  line-height: var(--line-height);
+}
+
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+/* Left Sidebar */
+.left-sidebar {
+  width: 110px;
+  height: 100vh;
+  flex-shrink: 0;
+  border-right: 1px solid var(--medium-gray);
+  background: var(--dark-gray);
+  box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.sidebar-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.sidebar-item {
+  display: flex;
+  width: 110px;
+  padding: 8px 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px; /* reduced gap between icon and label */
+  background-color: var(--dark-gray);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.3s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.sidebar-item:hover:not(.active) {
+  /* keep the base dark-gray, then add a subtle inset overlay to make it appear darker */
+  background-color: var(--dark-gray);
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.sidebar-item.active {
+  background-color: var(--white);
+}
+
+.sidebar-item .item-icon {
+  font-size: 32px;
+  margin-bottom: 4px; /* bring label closer to icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+}
+
+.sidebar-item.active .item-icon {
+  color: var(--warning-orange);
+}
+
+.sidebar-item .item-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar-item .item-label {
+  font-family: var(--font-family);
+  font-size: var(--small-size);
+  font-weight: 400;
+  line-height: var(--line-height);
+  color: var(--white);
   text-align: center;
+}
+
+.sidebar-item.active .item-label {
+  color: var(--dark-gray);
+  font-weight: 700;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  background-color: var(--white);
+  overflow: auto;
+}
+
+/* Teacher View */
+.view {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.view h2 {
+  color: var(--dark-gray);
+  margin-bottom: 16px;
+}
+
+.view p {
+  color: var(--medium-gray);
+  margin-bottom: 24px;
 }
