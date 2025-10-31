@@ -1,12 +1,17 @@
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import uuid
 import PyPDF2
 
+# Import our new modules
+from chroma_setup import init_chroma, create_collection, add_to_chroma
+from text_chunker import chunk_text
+
 app = FastAPI()
 
-#Add CORS so frontend can connect
+# Add CORS so frontend can connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -15,11 +20,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#Create uploads folder
+# Create uploads folder
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-#Original routes
+# Initialize Chroma (runs once when server starts)
+chroma_client = init_chroma()
+chroma_collection = create_collection(chroma_client, "course_materials")
+
+# Original routes
 @app.get("/")
 def index():
     return {"data": {"name": "AITA"}}
@@ -28,20 +37,20 @@ def index():
 def about():
     return {"data": "About page"}
 
-#File upload endpoint
+# Week 4: File upload endpoint
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
     """Upload a PDF file"""
     try:
-        #Check if it's a PDF
+        # Check if it's a PDF
         if not file.filename.endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files allowed")
         
-        #Generate unique ID for the file
+        # Generate unique ID
         file_id = str(uuid.uuid4())
         file_path = UPLOAD_DIR / f"{file_id}.pdf"
         
-        #Save the file
+        # Save file
         contents = await file.read()
         with open(file_path, "wb") as f:
             f.write(contents)
@@ -55,7 +64,7 @@ async def upload_file(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-#Extract text from PDF
+# Week 4: Extract text from PDF
 @app.get("/api/extract/{file_id}")
 def extract_pdf_text(file_id: str):
     """Extract text from uploaded PDF"""
@@ -68,7 +77,7 @@ def extract_pdf_text(file_id: str):
         with open(file_path, 'rb') as f:
             pdf_reader = PyPDF2.PdfReader(f)
             
-            #Extract text from all pages
+            # Extract text from all pages
             text = ""
             for page in pdf_reader.pages:
                 text += page.extract_text()
@@ -78,12 +87,12 @@ def extract_pdf_text(file_id: str):
                 "file_id": file_id,
                 "num_pages": len(pdf_reader.pages),
                 "text_length": len(text),
-                "preview": text[:500]  #First 500 characters
+                "preview": text[:500]  # First 500 characters
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-#List uploaded files
+# Week 4: List uploaded files
 @app.get("/api/files")
 def list_files():
     """List all uploaded files"""
@@ -91,7 +100,71 @@ def list_files():
     for file_path in UPLOAD_DIR.iterdir():
         if file_path.is_file():
             files.append({
-                "file_id": file_path.stem,  #filename without extension
+                "file_id": file_path.stem,  # filename without extension
                 "size": file_path.stat().st_size
             })
     return {"files": files, "count": len(files)}
+
+# Week 7 Task 2: Store in Chroma endpoint
+@app.post("/api/store-in-chroma")
+def store_in_chroma(file_id: str, course_name: str = "Untitled Course"):
+    """
+    Extract PDF text, chunk it, and store in Chroma
+    
+    Args:
+        file_id: ID from /api/upload response
+        course_name: Name of the course
+    
+    Returns:
+        Success message with number of chunks stored
+    """
+    try:
+        # Find the uploaded file
+        file_path = UPLOAD_DIR / f"{file_id}.pdf"
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Extract text from PDF
+        with open(file_path, 'rb') as f:
+            pdf_reader = PyPDF2.PdfReader(f)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+        
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="No text found in PDF")
+        
+        # Chunk the text
+        chunks = chunk_text(text, chunk_size=500, overlap=50)
+        
+        if len(chunks) == 0:
+            raise HTTPException(status_code=400, detail="No chunks created")
+        
+        # Prepare for Chroma
+        documents = chunks  # Just the text strings
+        ids = [f"{file_id}_chunk_{i}" for i in range(len(chunks))]
+        metadatas = [
+            {
+                "file_id": file_id,
+                "course": course_name,
+                "chunk_id": i
+            }
+            for i in range(len(chunks))
+        ]
+        
+        # Store in Chroma
+        add_to_chroma(chroma_collection, documents, ids, metadatas)
+        
+        return {
+            "success": True,
+            "file_id": file_id,
+            "course": course_name,
+            "num_chunks": len(chunks),
+            "message": f"Stored {len(chunks)} chunks in Chroma"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Storage failed: {str(e)}")
