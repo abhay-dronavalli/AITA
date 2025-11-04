@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
@@ -105,7 +104,7 @@ def list_files():
             })
     return {"files": files, "count": len(files)}
 
-# Week 7 Task 2: Store in Chroma endpoint
+#Store in Chroma endpoint
 @app.post("/api/store-in-chroma")
 def store_in_chroma(file_id: str, course_name: str = "Untitled Course"):
     """
@@ -168,3 +167,63 @@ def store_in_chroma(file_id: str, course_name: str = "Untitled Course"):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Storage failed: {str(e)}")
+
+#Query Chroma endpoint
+@app.get("/api/query-chroma")
+def query_chroma_endpoint(query: str, n_results: int = 3):
+    """
+    Query Chroma for relevant course content
+    
+    Args:
+        query: Student's question
+        n_results: Number of relevant chunks to return
+    
+    Returns:
+        List of relevant text chunks with metadata
+    """
+    try:
+        if not query.strip():
+            raise HTTPException(status_code=400, detail="Query cannot be empty")
+        
+        # Query Chroma
+        results = chroma_collection.query(
+            query_texts=[query],
+            n_results=n_results
+        )
+        
+        # Format results
+        formatted_results = []
+        if results["documents"] and results["documents"][0]:
+            for i, doc in enumerate(results["documents"][0]):
+                formatted_results.append({
+                    "rank": i + 1,
+                    "content": doc,
+                    "metadata": results["metadatas"][0][i] if results["metadatas"] else None,
+                    "distance": results["distances"][0][i] if results["distances"] else None
+                })
+        
+        return {
+            "success": True,
+            "query": query,
+            "num_results": len(formatted_results),
+            "results": formatted_results
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Query failed: {str(e)}")
+
+#Chroma Stats endpoint
+@app.get("/api/chroma-stats")
+def chroma_stats():
+    """Check how many chunks are stored in Chroma"""
+    try:
+        count = chroma_collection.count()
+        return {
+            "success": True,
+            "total_chunks": count,
+            "message": f"Database contains {count} chunks"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
