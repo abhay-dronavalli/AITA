@@ -6,6 +6,7 @@ function StudentChat() {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [dotPosition, setDotPosition] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -14,7 +15,7 @@ function StudentChat() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputText.trim()) {
       const newMessage = {
         id: messages.length + 1,
@@ -23,18 +24,54 @@ function StudentChat() {
       };
       
       setMessages([...messages, newMessage]);
+      const currentQuestion = inputText;
       setInputText('');
       setIsTyping(true);
+      setError('');
       
-      setTimeout(() => {
+      try {
+        // Call the real chat API
+        const response = await fetch('http://localhost:8001/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: currentQuestion,
+            subject: 'generic', // TODO: Get from course settings
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Add AI response to messages
         const aiResponse = {
           id: messages.length + 2,
-          text: "This is a mock AI response.",
+          text: data.answer,
+          sender: 'ai',
+          sources: data.sources || []
+        };
+        
+        setMessages(prev => [...prev, aiResponse]);
+        
+      } catch (error) {
+        console.error('Chat error:', error);
+        setError('Failed to get response. Make sure the chat API is running on port 8001.');
+        
+        // Add error message to chat
+        const errorMessage = {
+          id: messages.length + 2,
+          text: "Sorry, I encountered an error. Please try again.",
           sender: 'ai'
         };
-        setMessages(prev => [...prev, aiResponse]);
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
         setIsTyping(false);
-      }, 4500);
+      }
     }
   };
 
@@ -58,6 +95,18 @@ function StudentChat() {
 
   return (
     <div className="chat-container">
+      {error && (
+        <div style={{ 
+          backgroundColor: '#f8d7da', 
+          color: '#721c24', 
+          padding: '10px', 
+          borderRadius: '4px',
+          marginBottom: '10px'
+        }}>
+          {error}
+        </div>
+      )}
+      
       <div className="chat-area">
         {messages.map((message) => (
           <div
@@ -66,6 +115,16 @@ function StudentChat() {
           >
             <div className={`message-bubble ${message.sender}`}>
               {message.text}
+              {message.sources && message.sources.length > 0 && (
+                <div style={{ 
+                  fontSize: '12px', 
+                  marginTop: '8px', 
+                  opacity: 0.7,
+                  fontStyle: 'italic'
+                }}>
+                  Sources: {message.sources.map(s => s.course).join(', ')}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -84,14 +143,16 @@ function StudentChat() {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
+          placeholder="Ask a question about your course..."
           className="chat-input"
+          disabled={isTyping}
         />
         <button 
           onClick={handleSend}
           className="send-button"
+          disabled={isTyping}
         >
-          Send
+          {isTyping ? 'Sending...' : 'Send'}
         </button>
       </div>
     </div>
