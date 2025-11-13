@@ -40,7 +40,7 @@ function FileUpload() {
 
     // XMLHttpRequest for progress (wrapped as Promise for async feel)
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://localhost:5000/api/upload');
+    xhr.open('POST', 'http://localhost:8000/api/upload');
 
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable) {
