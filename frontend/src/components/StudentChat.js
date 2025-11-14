@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './StudentChat.css';
 
 function StudentChat() {
@@ -114,7 +115,11 @@ function StudentChat() {
             className={`message-row ${message.sender === 'student' ? 'student' : 'ai'}`}
           >
             <div className={`message-bubble ${message.sender}`}>
-              {message.text}
+               {message.sender === 'ai' ? (
+                <ReactMarkdown>{message.text}</ReactMarkdown>
+              ) : (
+                message.text
+              )}
               {message.sources && message.sources.length > 0 && (
                 <div style={{ 
                   fontSize: '12px', 

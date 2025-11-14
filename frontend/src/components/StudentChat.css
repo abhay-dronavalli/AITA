@@ -121,3 +121,65 @@
 .send-button:active {
   transform: translateY(1px);
 }
+
+.sources-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(117, 128, 138, 0.2);
+  font-size: 12px;
+}
+
+.sources-label {
+  font-weight: 600;
+  color: var(--medium-gray);
+  margin-bottom: 6px;
+}
+
+.source-item {
+  padding: 4px 8px;
+  background-color: rgba(117, 128, 138, 0.1);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  color: var(--medium-gray);
+  font-style: italic;
+}
+
+/* Markdown styling inside AI messages */
+.message-bubble.ai strong {
+  font-weight: 700;
+  color: var(--dark-gray);
+}
+
+.message-bubble.ai em {
+  font-style: italic;
+}
+
+.message-bubble.ai code {
+  background-color: rgba(117, 128, 138, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.message-bubble.ai ul,
+.message-bubble.ai ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.message-bubble.ai li {
+  margin: 4px 0;
+}
+
+.message-bubble.ai p {
+  margin: 8px 0;
+}
+
+.message-bubble.ai p:first-child {
+  margin-top: 0;
+}
+
+.message-bubble.ai p:last-child {
+  margin-bottom: 0;
+}
