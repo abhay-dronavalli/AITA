@@ -5,6 +5,7 @@ import FileUpload from './components/FileUpload';
 import StudentChat from './components/StudentChat';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import CreateCourse from './components/CreateCourse';
 import { 
   IconEducatorsSolid, 
   IconEducatorsLine,
@@ -81,11 +82,134 @@ function Sidebar({ onLogout }) {
 }
 
 function TeacherView() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/courses', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch courses');
+
+      const data = await response.json();
+      setCourses(data.courses);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="view">Loading courses...</div>;
+  if (error) return <div className="view">Error: {error}</div>;
+
   return (
     <div className="view">
-      <h2>Teacher Dashboard</h2>
-      <p>Create and manage your course AI assistants.</p>
-      <FileUpload/>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h2>My Courses</h2>
+        <button 
+          onClick={() => navigate('/create-course')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: 'var(--canvas-blue)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = 'var(--canvas-blue-hover)'}
+          onMouseOut={(e) => e.target.style.backgroundColor = 'var(--canvas-blue)'}
+        >
+          + Create Course
+        </button>
+      </div>
+
+      {courses.length === 0 ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 20px',
+          backgroundColor: 'var(--background)',
+          borderRadius: '8px'
+        }}>
+          <h3>No courses yet</h3>
+          <p style={{ color: 'var(--medium-gray)', marginBottom: '20px' }}>
+            Create your first AI teaching assistant to get started!
+          </p>
+          <button 
+            onClick={() => navigate('/create-course')}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: 'var(--canvas-blue)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Create Your First Course
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+          {courses.map(course => (
+            <div 
+              key={course.id} 
+              style={{
+                padding: '24px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                backgroundColor: 'white',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'}
+              onMouseOut={(e) => e.currentTarget.style.boxShadow = 'none'}
+              onClick={() => navigate(`/course/${course.id}`)}
+            >
+              <h3 style={{ marginBottom: '12px', color: 'var(--dark-gray)' }}>{course.name}</h3>
+              <p style={{ color: 'var(--medium-gray)', fontSize: '14px', marginBottom: '8px' }}>
+                Subject: <strong>{course.subject}</strong>
+              </p>
+              <p style={{ color: 'var(--medium-gray)', fontSize: '14px', marginBottom: '12px' }}>
+                Guardrails: <strong>{course.guardrail_level}</strong>
+              </p>
+              <div style={{
+                backgroundColor: 'var(--background)',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                marginTop: '12px'
+              }}>
+                <span style={{ fontSize: '12px', color: 'var(--medium-gray)' }}>Course Code:</span>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: 'var(--canvas-blue)',
+                  letterSpacing: '1px',
+                  marginTop: '4px'
+                }}>
+                  {course.course_code}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -189,19 +313,25 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
           <Route path="/signup" element={<Signup setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
-          
+  
+          <Route path="/create-course" element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              {userRole === 'teacher' ? <CreateCourse /> : <Navigate to="/student" />}
+            </ProtectedRoute>
+          } />
+  
           <Route path="/" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               {userRole === 'teacher' ? <TeacherView /> : <Navigate to="/student" />}
             </ProtectedRoute>
           } />
-          
+  
           <Route path="/student" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <StudentView />
             </ProtectedRoute>
           } />
-          
+  
           <Route path="/courses" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <CoursesView />
