@@ -280,17 +280,32 @@ def store_in_chroma(file_id: str, course_name: str = "Untitled Course"):
         raise HTTPException(status_code=500, detail=f"Storage failed: {str(e)}")
 
 @app.get("/api/query-chroma")
-def query_chroma_endpoint(query: str, n_results: int = 3):
-    """Query Chroma for relevant course content"""
+def query_chroma_endpoint(query: str, n_results: int = 3, course_id: Optional[str] = None):
+    """
+    Query Chroma for relevant course content
+    
+    Args:
+        query: Student's question
+        n_results: Number of results to return
+        course_id: Optional course ID to filter by specific course
+    """
     try:
         if not query.strip():
             raise HTTPException(status_code=400, detail="Query cannot be empty")
         
+        # Build query parameters
+        query_params = {
+            "query_texts": [query],
+            "n_results": n_results
+        }
+        
+        # Add course_id filter if provided
+        if course_id:
+            query_params["where"] = {"course_id": str(course_id)}
+            print(f"🔍 Filtering by course_id: {course_id}")  # DEBUG
+        
         # Query Chroma
-        results = chroma_collection.query(
-            query_texts=[query],
-            n_results=n_results
-        )
+        results = chroma_collection.query(**query_params)
         
         # Format results
         formatted_results = []
@@ -303,11 +318,14 @@ def query_chroma_endpoint(query: str, n_results: int = 3):
                     "distance": results["distances"][0][i] if results["distances"] else None
                 })
         
+        print(f"📦 Returned {len(formatted_results)} results for course {course_id if course_id else 'ALL'}")  # DEBUG
+        
         return {
             "success": True,
             "query": query,
             "num_results": len(formatted_results),
-            "results": formatted_results
+            "results": formatted_results,
+            "filtered_by_course": course_id is not None
         }
     
     except HTTPException:
@@ -547,3 +565,16 @@ def join_course(
             "subject": course.subject
         }
     }
+
+@app.get("/api/debug/chroma")
+def debug_chroma():
+    """Debug: See all Chroma metadata"""
+    try:
+        all_data = chroma_collection.get()
+        return {
+            "total_chunks": len(all_data["ids"]),
+            "sample_ids": all_data["ids"][:3],
+            "sample_metadata": all_data["metadatas"][:3] if all_data["metadatas"] else []
+        }
+    except Exception as e:
+        return {"error": str(e)}

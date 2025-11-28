@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+from typing import Optional
 import requests
 import time
 import os
@@ -62,27 +63,50 @@ SYSTEM_PROMPTS = {
 # Request model
 class ChatRequest(BaseModel):
     question: str
-    subject: str = "generic"  # math, physics, english, computer_science, generic
-    course_id: str = None  # Optional: for filtering by specific course
+    subject: str = "generic"
+    course_id: Optional[str] = None  # Filter by specific course
 
 # Response model
 class ChatResponse(BaseModel):
     answer: str
     sources: list = []
 
-def query_chroma(question: str, n_results: int = 3):
+def query_chroma(question: str, course_id: str = None, n_results: int = 3):
     """
     Query the backend's Chroma database for relevant course materials
+    
+    Args:
+        question: The student's question
+        course_id: Optional course ID to filter results
+        n_results: Number of results to return
     """
     try:
-        response = requests.get(
-            "http://localhost:8000/api/query-chroma",
-            params={"query": question, "n_results": n_results}
-        )
+        url = "http://localhost:8000/api/query-chroma"
+        params = {"query": question, "n_results": n_results}
+        
+        # Add course_id filter if provided
+        if course_id:
+            params["course_id"] = course_id
+        
+        print(f"🔍 Querying: {url} with params: {params}")  # DEBUG
+        
+        response = requests.get(url, params=params, timeout=10)
+        print(f"📡 Response status: {response.status_code}")  # DEBUG
+        
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        print(f"📦 Data received: {data.get('num_results', 0)} results")  # DEBUG
+        
+        return data
+    except requests.exceptions.ConnectionError as e:
+        print(f"❌ CONNECTION ERROR: Cannot reach backend at port 8000")
+        print(f"   Make sure backend is running: uvicorn main:app --reload")
+        return None
+    except requests.exceptions.Timeout:
+        print(f"⏱️ TIMEOUT: Backend didn't respond in time")
+        return None
     except Exception as e:
-        print(f"Error querying Chroma: {e}")
+        print(f"❌ Error querying Chroma: {type(e).__name__}: {e}")
         return None
 
 def format_context_from_chroma(chroma_results):
@@ -90,7 +114,10 @@ def format_context_from_chroma(chroma_results):
     Format Chroma results into context string for Gemini
     """
     if not chroma_results or not chroma_results.get("results"):
+        print("⚠️ No results from Chroma query")  # DEBUG
         return None, []
+    
+    print(f"✅ Formatting {len(chroma_results['results'])} results")  # DEBUG
     
     context_parts = []
     sources = []
@@ -99,16 +126,29 @@ def format_context_from_chroma(chroma_results):
         content = result.get("content", "")
         metadata = result.get("metadata", {})
         
+        print(f"   Result {i+1}: {len(content)} chars, metadata: {metadata}")  # DEBUG
+        
         context_parts.append(f"[Source {i+1}]: {content}")
         
-        # Store source info for citations
+        # Store source info for citations (handle different metadata formats)
+        # Try multiple possible field names in order of preference
+        course_name = (
+            metadata.get("course_name") or      # New format from POST /api/courses
+            metadata.get("course") or            # Old format from POST /api/store-in-chroma
+            f"Course {metadata.get('course_id', 'Unknown')}"  # Fallback to course ID
+        )
+
         sources.append({
             "rank": result.get("rank", i+1),
-            "course": metadata.get("course", "Unknown"),
-            "chunk_id": metadata.get("chunk_id", "Unknown")
+            "course": course_name,
+            "chunk_id": metadata.get("chunk_id", "Unknown"),
+            "file_id": metadata.get("file_id", "Unknown")
         })
     
     context = "\n\n".join(context_parts)
+    print(f"📝 Created context: {len(context)} characters")  # DEBUG
+    print(f"📚 Created {len(sources)} source citations")  # DEBUG
+    
     return context, sources
 
 @app.post("/api/chat", response_model=ChatResponse)
@@ -118,9 +158,11 @@ async def chat(request: ChatRequest):
     """
     try:
         # Step 1: Query Chroma for relevant course materials
-        chroma_results = query_chroma(request.question, n_results=3)
+        print(f"Querying Chroma for: {request.question}")  # DEBUG
+        if request.course_id:
+            print(f"📚 Filtering by course_id: {request.course_id}")  # DEBUG
+        chroma_results = query_chroma(request.question, course_id=request.course_id, n_results=3)
         context, sources = format_context_from_chroma(chroma_results)
-        
         # Step 2: Build the prompt with context
         system_prompt = SYSTEM_PROMPTS.get(request.subject.lower(), SYSTEM_PROMPTS["generic"])
         
@@ -158,8 +200,13 @@ Note: I couldn't find specific course materials related to this question, so I'l
         return ChatResponse(answer=answer, sources=sources)
         
     except Exception as e:
+        import traceback
+        print("=" * 50)
+        print("FULL ERROR TRACEBACK:")
+        print(traceback.format_exc())
+        print("=" * 50)
         if "429" in str(e):
-            # Rate limit - retry once after 2 seconds
+
             time.sleep(2)
             raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again in a moment.")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

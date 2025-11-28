@@ -13,15 +13,10 @@ def init_chroma():
 # Create a collection (like a table in a database)
 def create_collection(client, name="course_content"):
     """Create or get a Chroma collection"""
-    try:
-        # If collection exists, delete it first (for testing)
-        client.delete_collection(name=name)
-    except:
-        pass
-    
+    # Just get or create - don't delete!
     collection = client.get_or_create_collection(
         name=name,
-        metadata={"hnsw:space": "cosine"}  # Use cosine similarity for text
+        metadata={"hnsw:space": "cosine"}
     )
     return collection
 
