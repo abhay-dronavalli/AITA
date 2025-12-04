@@ -236,11 +236,11 @@ function CourseChat() {
                 <div className="sources-section">
                   <div className="sources-label">📚 Sources:</div>
                   {message.sources.map((source, idx) => {
-                    return (
+                    //return (
                         <div key={idx} className="source-item">
                             {source.course || source.course_name || 'Unknown'}
                         </div>
-                    );
+                    //);
                   })}
                 </div>
               )}

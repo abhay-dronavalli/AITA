@@ -82,7 +82,7 @@ function CreateCourse() {
       
       // Show success for 3 seconds then redirect
       setTimeout(() => {
-        navigate('/courses');
+        navigate('/dashboard');
       }, 3000);
 
     } catch (err) {

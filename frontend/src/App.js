@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import CreateCourse from './components/CreateCourse';
 import CourseChat from './components/CourseChat';
+import Landing from './components/Landing';
 import { 
   // IconEducatorsSolid, 
   // IconEducatorsLine,
@@ -26,8 +27,8 @@ function Sidebar({ onLogout }) {
       <div className="sidebar-items">
         {/* Students and Teachers both see Courses */}
         <div 
-          className={`sidebar-item ${location.pathname === '/student' || location.pathname === '/' ? 'active' : ''}`}
-          onClick={() => navigate(user.role === 'teacher' ? '/' : '/student')}
+          className={`sidebar-item ${location.pathname === '/student' || location.pathname === '/dashboard' ? 'active' : ''}`}
+          onClick={() => navigate(user.role === 'teacher' ? '/dashboard' : '/student')}
         >
           <div className="item-icon">
             {(location.pathname === '/student' || location.pathname === '/') ? (
@@ -627,6 +628,14 @@ function AppContent() {
           } />
   
           <Route path="/" element={
+            isAuthenticated ? (
+              <Navigate to={userRole === 'teacher' ? '/dashboard' : '/student'} />
+            ) : (
+              <Landing />
+            )
+          } />
+
+          <Route path="/dashboard" element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               {userRole === 'teacher' ? <TeacherView /> : <Navigate to="/student" />}
             </ProtectedRoute>
