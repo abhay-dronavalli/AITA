@@ -192,53 +192,89 @@ function TeacherView() {
       </div>
 
       {/* Stats Cards */}
+      
       {courses.length > 0 && (
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '20px', 
+          gap: '16px', 
           marginBottom: '40px' 
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #0374B5 0%, #008EE2 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(3, 116, 181, 0.2)'
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
-              {courses.length}
-            </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               Total Courses
             </div>
-          </div>
-          <div style={{
-            background: 'linear-gradient(135deg, #FC5E13 0%, #FF8A3D 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(252, 94, 19, 0.2)'
-          }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
-              {totalStudents}
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
+              {courses.length}
             </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
+          </div>
+
+          <div style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+          }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               Total Students
             </div>
-          </div>
-          <div style={{
-            background: 'linear-gradient(135deg, #00AC18 0%, #00D921 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(0, 172, 24, 0.2)'
-          }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
-              {courses.filter(c => c.subject).length}
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
+              {totalStudents}
             </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
+          </div>
+
+          <div style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+          }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               Active Subjects
+            </div>
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
+              {new Set(courses.map(c => c.subject)).size}
             </div>
           </div>
         </div>
@@ -610,49 +646,84 @@ function StudentView() {
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '20px', 
+          gap: '16px', 
           marginBottom: '40px' 
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #0374B5 0%, #008EE2 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(3, 116, 181, 0.2)'
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
-              {courses.length}
-            </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               Enrolled Courses
             </div>
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
+              {courses.length}
+            </div>
           </div>
+
           <div style={{
-            background: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Subjects
+            </div>
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
               {new Set(courses.map(c => c.subject)).size}
             </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
-              Different Subjects
-            </div>
           </div>
+
           <div style={{
-            background: 'linear-gradient(135deg, #00AC18 0%, #00D921 100%)',
-            padding: '24px',
-            borderRadius: '12px',
-            color: 'white',
-            boxShadow: '0 4px 12px rgba(0, 172, 24, 0.2)'
+            background: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
           }}>
-            <div style={{ fontSize: '36px', fontWeight: '900', marginBottom: '8px' }}>
-              AI
+            <div style={{ 
+              fontSize: '13px', 
+              color: 'var(--medium-gray)', 
+              marginBottom: '8px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              AI Tutors
             </div>
-            <div style={{ fontSize: '14px', opacity: 0.9, fontWeight: '600' }}>
-              Tutors Available
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: '700', 
+              color: 'var(--dark-gray)' 
+            }}>
+              {courses.length}
             </div>
           </div>
         </div>

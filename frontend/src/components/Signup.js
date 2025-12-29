@@ -15,13 +15,11 @@ function Signup({ setIsAuthenticated, setUserRole }) {
     e.preventDefault();
     setError('');
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    // Validate password length
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
@@ -44,16 +42,14 @@ function Signup({ setIsAuthenticated, setUserRole }) {
         throw new Error(data.detail || 'Signup failed');
       }
 
-      // Store token and user info
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       setIsAuthenticated(true);
       setUserRole(data.user.role);
       
-      // Redirect based on role
       if (data.user.role === 'teacher') {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         navigate('/student');
       }
@@ -68,7 +64,16 @@ function Signup({ setIsAuthenticated, setUserRole }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1>Sign Up for AITA</h1>
+        {/* Logo/Brand */}
+        <div className="auth-logo">
+          <h1>AIT<span style={{ color: 'var(--warning-orange)' }}>A</span></h1>
+        </div>
+
+        <div className="auth-header">
+          <h2>Create Account</h2>
+          <p>Get started with your AI teaching assistant</p>
+        </div>
+
         <form onSubmit={handleSignup}>
           <div className="form-group">
             <label>I am a...</label>
@@ -78,26 +83,29 @@ function Signup({ setIsAuthenticated, setUserRole }) {
                 className={`role-button ${role === 'student' ? 'active' : ''}`}
                 onClick={() => setRole('student')}
               >
-                Student
+                <span className="role-icon">🎓</span>
+                <span>Student</span>
               </button>
               <button
                 type="button"
                 className={`role-button ${role === 'teacher' ? 'active' : ''}`}
                 onClick={() => setRole('teacher')}
               >
-                Teacher
+                <span className="role-icon">👨‍🏫</span>
+                <span>Teacher</span>
               </button>
             </div>
           </div>
 
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
+              placeholder="you@example.com"
+              autoComplete="email"
             />
           </div>
           
@@ -109,6 +117,7 @@ function Signup({ setIsAuthenticated, setUserRole }) {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="At least 6 characters"
+              autoComplete="new-password"
             />
           </div>
 
@@ -119,19 +128,40 @@ function Signup({ setIsAuthenticated, setUserRole }) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              placeholder="Re-enter password"
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              {error}
+            </div>
+          )}
 
           <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? (
+              <span className="button-loading">
+                <span className="spinner"></span>
+                Creating account...
+              </span>
+            ) : (
+              'Create Account'
+            )}
           </button>
         </form>
 
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
         <p className="auth-link">
-          Already have an account? <span onClick={() => navigate('/login')}>Login</span>
+          Already have an account? <span onClick={() => navigate('/login')}>Sign in</span>
+        </p>
+
+        <p className="auth-footer">
+          <span onClick={() => navigate('/')}>← Back to home</span>
         </p>
       </div>
     </div>

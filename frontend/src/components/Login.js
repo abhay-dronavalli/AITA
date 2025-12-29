@@ -29,16 +29,14 @@ function Login({ setIsAuthenticated, setUserRole }) {
         throw new Error(data.detail || 'Login failed');
       }
 
-      // Store token and user info
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       setIsAuthenticated(true);
       setUserRole(data.user.role);
       
-      // Redirect based on role
       if (data.user.role === 'teacher') {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         navigate('/student');
       }
@@ -53,16 +51,26 @@ function Login({ setIsAuthenticated, setUserRole }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1>Login to AITA</h1>
+        {/* Logo/Brand */}
+        <div className="auth-logo">
+          <h1>AIT<span style={{ color: 'var(--warning-orange)' }}>A</span></h1>
+        </div>
+
+        <div className="auth-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to your account to continue</p>
+        </div>
+
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
+              placeholder="you@example.com"
+              autoComplete="email"
             />
           </div>
           
@@ -73,19 +81,40 @@ function Login({ setIsAuthenticated, setUserRole }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="••••••••"
+              placeholder="Enter your password"
+              autoComplete="current-password"
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              {error}
+            </div>
+          )}
 
           <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? (
+              <span className="button-loading">
+                <span className="spinner"></span>
+                Signing in...
+              </span>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
         <p className="auth-link">
           Don't have an account? <span onClick={() => navigate('/signup')}>Sign up</span>
+        </p>
+
+        <p className="auth-footer">
+          <span onClick={() => navigate('/')}>← Back to home</span>
         </p>
       </div>
     </div>
